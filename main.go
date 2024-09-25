@@ -36,8 +36,48 @@ func main() {
 			nbrand--
 		}
 	}
-	fmt.Println(mot, motcacher)
-
+	lutil := []string{}
+	nbessais := 10
+	fmt.Printf("Tu as %d essais pour trouver le bon mot\n", nbessais)
+	fmt.Print("Bonne chance\n")
+	fmt.Println(motcacher)
+	for nbessais != 0 {
+		if MotFini(motcacher) {
+			break
+		}
+		danslemot := 0
+		l := ' '
+		fmt.Print("Choisir une lettre :")
+		fmt.Scanf("%c\n", &l)
+		lettre := string(l)
+		if InTab(lutil, lettre) {
+			fmt.Print("Lettre déjà utiliser réessayer\n")
+			continue
+		}
+		lutil = append(lutil, lettre)
+		for i := 0; i < len(mot); i++ {
+			if string(mot[i]) == lettre {
+				motcacher[i] = ToUpper(lettre)
+				danslemot++
+			}
+		}
+		if danslemot == 0 {
+			nbessais--
+			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
+			fmt.Println(motcacher)
+			fmt.Print("\n")
+		} else {
+			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
+			fmt.Println(motcacher)
+			fmt.Print("\n")
+		}
+	}
+	if nbessais == 0 {
+		fmt.Printf("Perdu !! Le mot était : %s", ToUpper(mot))
+	} else {
+		fmt.Print("bravo vous avez trouvez le mot cacher :")
+		fmt.Print(motcacher)
+	}
 }
 
 func ToUpper(s string) string {
@@ -50,4 +90,22 @@ func ToUpper(s string) string {
 		result += string(h[i])
 	}
 	return result
+}
+
+func MotFini(tab []string) bool {
+	for _, i := range tab {
+		if i == "_" {
+			return false
+		}
+	}
+	return true
+}
+
+func InTab(tab []string, lettre string) bool {
+	for _, i := range tab {
+		if i == lettre {
+			return true
+		}
+	}
+	return false
 }
