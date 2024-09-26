@@ -61,7 +61,7 @@ func main() {
 		}
 		lutil = append(lutil, lettre)
 		for i := 0; i < len(mot); i++ {
-			if string(mot[i]) == lettre {
+			if string(mot[i]) == lettre && string(motcacher[i]) == "_" {
 				motcacher[i] = ToUpper(lettre)
 				danslemot++
 			}
