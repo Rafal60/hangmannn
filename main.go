@@ -28,6 +28,7 @@ func main() {
 	for i := 0; i < len(mot); i++ {
 		motcacher = append(motcacher, "_")
 	}
+	lutil := []string{}
 	nbrand := (len(mot) / 2) - 1
 	for nbrand != 0 {
 		n := rand.IntN(len(mot) - 1)
@@ -36,11 +37,10 @@ func main() {
 			nbrand--
 		}
 	}
-	lutil := []string{}
 	nbessais := 10
 	fmt.Printf("Tu as %d essais pour trouver le bon mot\n", nbessais)
 	fmt.Print("Bonne chance\n")
-	fmt.Println(motcacher)
+	affichemot(motcacher)
 	for nbessais != 0 {
 		if MotFini(motcacher) {
 			break
@@ -50,6 +50,10 @@ func main() {
 		fmt.Print("Choisir une lettre :")
 		fmt.Scanf("%c\n", &l)
 		lettre := string(l)
+		if !simplelettre(lettre) {
+			fmt.Print("Caractère invalide\n")
+			continue
+		}
 		if InTab(lutil, lettre) {
 			fmt.Print("Lettre déjà utiliser réessayer\n")
 			continue
@@ -61,22 +65,21 @@ func main() {
 				danslemot++
 			}
 		}
-		if danslemot == 0 {
+		if !InTab(motcacher, "_") {
+			continue
+		} else if danslemot == 0 {
 			nbessais--
 			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-			fmt.Println(motcacher)
-			fmt.Print("\n")
+			affichemot(motcacher)
 		} else {
 			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-			fmt.Println(motcacher)
-			fmt.Print("\n")
+			affichemot(motcacher)
 		}
 	}
 	if nbessais == 0 {
 		fmt.Printf("Perdu !! Le mot était : %s", ToUpper(mot))
 	} else {
-		fmt.Print("bravo vous avez trouvez le mot cacher :")
-		fmt.Print(motcacher)
+		fmt.Print("bravo vous avez trouvez le mot cacher : " + ToUpper(mot))
 	}
 }
 
@@ -108,4 +111,22 @@ func InTab(tab []string, lettre string) bool {
 		}
 	}
 	return false
+}
+
+func affichemot(tab []string) {
+	affiche := ""
+	for _, i := range tab {
+		affiche += i + " "
+	}
+	fmt.Print(affiche + "\n")
+}
+
+func simplelettre(l string) bool {
+	if len(l) != 1 {
+		return false
+	}
+	if (rune(l[0]) < 'a' || rune(l[0]) > 'z') && (rune(l[0]) < 'A' || rune(l[0]) > 'Z') {
+		return false
+	}
+	return true
 }
