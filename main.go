@@ -37,6 +37,7 @@ func main() {
 			nbrand--
 		}
 	}
+	position := pospendu()
 	nbessais := 10
 	fmt.Printf("Tu as %d essais pour trouver le bon mot\n", nbessais)
 	fmt.Print("Bonne chance\n")
@@ -69,7 +70,11 @@ func main() {
 			continue
 		} else if danslemot == 0 {
 			nbessais--
+			if nbessais == 0 {
+				continue
+			}
 			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
+			fmt.Print(string(position[10-nbessais-1]))
 			affichemot(motcacher)
 		} else {
 			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
@@ -77,6 +82,7 @@ func main() {
 		}
 	}
 	if nbessais == 0 {
+		fmt.Print(string(position[9]))
 		fmt.Printf("Perdu !! Le mot était : %s", ToUpper(mot))
 	} else {
 		fmt.Print("bravo vous avez trouvez le mot cacher : " + ToUpper(mot))
@@ -129,4 +135,31 @@ func simplelettre(l string) bool {
 		return false
 	}
 	return true
+}
+
+func pospendu() []string {
+	tab := []string{}
+	fichier, err := os.Open("hangman.txt")
+	if err != nil {
+		fmt.Print(err)
+	}
+	fileScanner := bufio.NewScanner(fichier)
+	fileScanner.Split(bufio.ScanLines)
+	pos := ""
+	lscan := 0
+	for fileScanner.Scan() {
+		if lscan < 0 {
+			lscan++
+			continue
+		}
+		pos += fileScanner.Text() + "\n"
+		lscan++
+		if lscan%7 == 0 {
+			tab = append(tab, pos)
+			pos = ""
+			lscan -= 8
+		}
+	}
+	fichier.Close()
+	return tab
 }
