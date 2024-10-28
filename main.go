@@ -8,39 +8,51 @@ import (
 )
 
 func main() {
-	if len(os.Args) > 2 {
+	if len(os.Args) > 1 {
 		fmt.Print("trop d'arguments")
 		return
 	}
-	fichier, err := os.Open(os.Args[1])
-	if err != nil {
-		fmt.Print(err)
-	}
-	fileScanner := bufio.NewScanner(fichier)
-	fileScanner.Split(bufio.ScanLines)
-	mots := []string{}
-	for fileScanner.Scan() {
-		mots = append(mots, fileScanner.Text())
-	}
-	fichier.Close()
-	mot := mots[rand.IntN(len(mots)-1)]
+	mot := ""
 	motcacher := []string{}
-	for i := 0; i < len(mot); i++ {
-		motcacher = append(motcacher, "_")
-	}
+	nbessais := 0
 	lutil := []string{}
-	nbrand := (len(mot) / 2) - 1
-	for nbrand != 0 {
-		n := rand.IntN(len(mot) - 1)
-		if motcacher[n] == "_" {
-			motcacher[n] = ToUpper(string(mot[n]))
-			nbrand--
+	position := pospendu()
+	d := 0
+	difficulté := ' '
+	for d == 0 {
+		fmt.Print("Choisir une difficulté :")
+		fmt.Scanf("%c\n", &difficulté)
+		if difficulté == 'f' {
+			d++
+			mot = ouvrirfich("facile.txt")
+			motcacher = motcache(mot)
+			nbrand := (len(mot) / 2) - 1
+			for nbrand != 0 {
+				n := rand.IntN(len(mot) - 1)
+				if motcacher[n] == "_" {
+					motcacher[n] = ToUpper(string(mot[n]))
+					nbrand--
+				}
+			}
+			nbessais = 10
+		} else if difficulté == 'm' {
+			d++
+			mot = ouvrirfich("moyen.txt")
+			motcacher = motcache(mot)
+			motcacher[0] = ToUpper(string(mot[0]))
+			nbessais = 8
+		} else if difficulté == 'd' {
+			d++
+			mot = ouvrirfich("difficile.txt")
+			motcacher = motcache(mot)
+			nbessais = 5
+		} else {
+			fmt.Print("Caractère invalide\n")
+			continue
 		}
 	}
-	position := pospendu()
-	nbessais := 10
-	fmt.Printf("Tu as %d essais pour trouver le bon mot\n", nbessais)
-	fmt.Print("Bonne chance\n")
+	fmt.Printf("\n \n Tu as %d essais pour trouver le bon mot\n", nbessais)
+	fmt.Print("\t \tBonne chance\n \n")
 	affichemot(motcacher)
 	for nbessais != 0 {
 		if MotFini(motcacher) {
@@ -87,6 +99,30 @@ func main() {
 	} else {
 		fmt.Print("bravo vous avez trouvez le mot cacher : " + ToUpper(mot))
 	}
+}
+
+func ouvrirfich(fich string) string {
+	fichier, err := os.Open(fich)
+	if err != nil {
+		fmt.Print(err)
+	}
+	fileScanner := bufio.NewScanner(fichier)
+	fileScanner.Split(bufio.ScanLines)
+	mots := []string{}
+	for fileScanner.Scan() {
+		mots = append(mots, fileScanner.Text())
+	}
+	fichier.Close()
+	mot := mots[rand.IntN(len(mots)-1)]
+	return mot
+}
+
+func motcache(mot string) []string {
+	motcacher := []string{}
+	for i := 0; i < len(mot); i++ {
+		motcacher = append(motcacher, "_")
+	}
+	return motcacher
 }
 
 func ToUpper(s string) string {
