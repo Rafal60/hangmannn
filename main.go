@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -78,7 +79,7 @@ func main() {
 		}
 		fmt.Printf("\n \n Tu as %d essais pour trouver le bon mot\n", nbessais)
 		fmt.Print("\t \tBonne chance\n \n")
-		affichemot(motcacher, lettreascii)
+		affichemot(motcacher, lettreascii, ascii)
 		for nbessais != 0 {
 			if MotFini(motcacher) {
 				break
@@ -86,14 +87,13 @@ func main() {
 			danslemot := 0
 			l := ""
 			fmt.Print("\n Choisir une lettre :")
-			fmt.Scanf("\n", &l)
-			lettre := string(l)
-			if !simplelettre(lettre) {
+			fmt.Scanf("%s\n", &l)
+			if !simplelettre(l) {
 				fmt.Print("Caractère invalide\n")
 				continue
 			}
-			if len(lettre) > 1 {
-				if lettre == mot {
+			if len(l) > 1 {
+				if l == mot {
 					break
 				} else {
 					if nbessais == 1 {
@@ -101,20 +101,22 @@ func main() {
 					} else {
 						nbessais -= 2
 					}
-					fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-					fmt.Print(string(position[10-nbessais-1]) + "\n")
-					affichemot(motcacher, lettreascii)
+					if nbessais != 0 {
+						fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
+						fmt.Print(string(position[10-nbessais-1]) + "\n")
+						affichemot(motcacher, lettreascii, ascii)
+					}
 				}
 				continue
 			}
-			if InTab(lutil, lettre) {
+			if InTab(lutil, l) {
 				fmt.Print("Lettre déjà utiliser réessayer\n")
 				continue
 			}
-			lutil = append(lutil, lettre)
+			lutil = append(lutil, l)
 			for i := 0; i < len(mot); i++ {
-				if string(mot[i]) == lettre && string(motcacher[i]) == "_" {
-					motcacher[i] = ToUpper(lettre)
+				if string(mot[i]) == l && string(motcacher[i]) == "_" {
+					motcacher[i] = ToUpper(l)
 					danslemot++
 				}
 			}
@@ -127,20 +129,22 @@ func main() {
 				}
 				fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
 				fmt.Print(string(position[10-nbessais-1]) + "\n")
-				affichemot(motcacher, lettreascii)
+				affichemot(motcacher, lettreascii, ascii)
 			} else {
 				if nbessais != 10 {
 					fmt.Print(string(position[10-nbessais-1]) + "\n")
 				}
 				fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-				affichemot(motcacher, lettreascii)
+				affichemot(motcacher, lettreascii, ascii)
 			}
 		}
 		if nbessais == 0 {
 			fmt.Print(string(position[9]))
-			fmt.Printf("Perdu !! Le mot était : %s", ToUpper(mot))
+			fmt.Print("Perdu !! Le mot était\n")
+			affichemot(motcacher, lettreascii, ascii)
 		} else {
-			fmt.Print("bravo vous avez trouvez le mot cacher : " + ToUpper(mot))
+			fmt.Print("bravo vous avez trouvez le mot cacher\n")
+			affichemot(motcacher, lettreascii, ascii)
 		}
 	}
 }
@@ -199,11 +203,11 @@ func InTab(tab []string, lettre string) bool {
 	return false
 }
 
-func affichemot(mot []string, ascii []string) {
-	if ascii[0] == "0" {
+func affichemot(mot []string, tabascii []string, ascii rune) {
+	if tabascii[0] == "0" {
 		affichemotnormal(mot)
 	} else {
-		affichasciimot(ascii, mot)
+		affichasciimot(tabascii, mot, ascii)
 	}
 }
 
@@ -215,38 +219,29 @@ func affichemotnormal(tab []string) {
 	fmt.Print(affiche + "\n")
 }
 
-func affichasciimot(tab []string, mot []string) {
-	motaaffich := []string{}
-	for _, i := range mot {
-		if i == "_" {
-			motaaffich = append(motaaffich, tab[0])
+func affichasciimot(tab []string, mot []string, ascii rune) {
+	lignes := make([]string, 8)
+	charac := ""
+	for _, lettre := range mot {
+		if lettre == "_" {
+			charac = tab[0]
 		} else {
-			motaaffich = append(motaaffich, string(tab[rune(i[0])-64]))
-		}
-	}
-	affiche := ""
-	laaffiche := ""
-	ligne := 0
-	for i := 0; i < 8; i++ {
-		for j := 0; j < len(motaaffich); j++ {
-			for _, k := range string(motaaffich[j]) {
-				if k == '\n' {
-					if ligne == i {
-						break
-					} else {
-						ligne++
-						laaffiche = ""
-					}
-				} else {
-					laaffiche += string(k)
-				}
+			if ascii == 'm' {
+				charac = tab[lettre[0]-64]
+			} else {
+				charac = tab[lettre[0]-64]
 			}
-			ligne = 0
 		}
-		affiche += laaffiche + "\n"
-		laaffiche = ""
+		ligneascii := strings.Split(charac, "\n")
+		for i, line := range ligneascii {
+			if i < len(lignes) {
+				lignes[i] += line
+			}
+		}
 	}
-	fmt.Print(affiche)
+	for _, ligne := range lignes {
+		fmt.Printf(ligne + "\n")
+	}
 }
 
 func simplelettre(l string) bool {
