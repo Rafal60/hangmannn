@@ -50,102 +50,108 @@ func main() {
 		} else {
 			fmt.Print("Caractère invalide\n")
 		}
-		lettreascii := []string{"0"}
-		a := 0
-		ascii := ' '
-		for a == 0 {
-			fmt.Print("Jouer en ascii ? : ")
-			fmt.Scanf("%c\n", &ascii)
-			if ascii == 'n' {
-				a++
-			} else if ascii == 'y' {
-				a++
-				for a == 1 {
-					fmt.Print("Majuscule ou minuscule ? : ")
-					fmt.Scanf("%c\n", &ascii)
-					if ascii == 'M' {
-						a++
-						lettreascii = gettxt("maj")
-					} else if ascii == 'm' {
-						a = 3
-						lettreascii = gettxt("min")
-					} else {
-						fmt.Print("Caractère invalide\n")
-					}
-				}
-			} else {
-				fmt.Print("Caractère invalide\n")
-			}
-		}
-		fmt.Printf("\n \n Tu as %d essais pour trouver le bon mot\n", nbessais)
-		fmt.Print("\t \tBonne chance\n \n")
-		affichemot(motcacher, lettreascii, ascii)
-		for nbessais != 0 {
-			if MotFini(motcacher) {
-				break
-			}
-			danslemot := 0
-			l := ""
-			fmt.Print("\n Choisir une lettre :")
-			fmt.Scanf("%s\n", &l)
-			if !simplelettre(l) {
-				fmt.Print("Caractère invalide\n")
-				continue
-			}
-			if len(l) > 1 {
-				if l == mot {
-					break
+	}
+	lettreascii := []string{"0"}
+	a := 0
+	ascii := ' '
+	for a == 0 {
+		fmt.Print("Jouer en ascii ? : ")
+		fmt.Scanf("%c\n", &ascii)
+		if ascii == 'n' {
+			a++
+		} else if ascii == 'y' {
+			a++
+			for a == 1 {
+				fmt.Print("Majuscule ou minuscule ? : ")
+				fmt.Scanf("%c\n", &ascii)
+				if ascii == 'M' {
+					a++
+					lettreascii = gettxt("maj")
+				} else if ascii == 'm' {
+					a = 3
+					lettreascii = gettxt("min")
 				} else {
-					if nbessais == 1 {
-						nbessais--
-					} else {
-						nbessais -= 2
-					}
-					if nbessais != 0 {
-						fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-						fmt.Print(string(position[10-nbessais-1]) + "\n")
-						affichemot(motcacher, lettreascii, ascii)
-					}
-				}
-				continue
-			}
-			if InTab(lutil, l) {
-				fmt.Print("Lettre déjà utiliser réessayer\n")
-				continue
-			}
-			lutil = append(lutil, l)
-			for i := 0; i < len(mot); i++ {
-				if string(mot[i]) == l && string(motcacher[i]) == "_" {
-					motcacher[i] = ToUpper(l)
-					danslemot++
+					fmt.Print("Caractère invalide\n")
 				}
 			}
-			if !InTab(motcacher, "_") {
-				continue
-			} else if danslemot == 0 {
-				nbessais--
-				if nbessais == 0 {
+		} else {
+			fmt.Print("Caractère invalide\n")
+		}
+	}
+	fmt.Printf("\n \n Tu as %d essais pour trouver le bon mot\n", nbessais)
+	fmt.Print("\t \tBonne chance\n \n")
+	affichemot(motcacher, lettreascii, ascii)
+	for nbessais != 0 {
+		if MotFini(motcacher) {
+			break
+		}
+		danslemot := 0
+		l := ""
+		fmt.Print("\n Choisir une lettre :")
+		fmt.Scanf("%s\n", &l)
+		if !simplelettre(l) {
+			fmt.Print("Caractère invalide\n")
+			continue
+		}
+		if l == "STOP" {
+			return
+		}
+		if len(l) > 1 {
+			if l == mot {
+				break
+			} else {
+				if nbessais == 1 {
+					nbessais--
+				} else {
+					nbessais -= 2
+				}
+				if nbessais != 0 {
+					fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
+					fmt.Print(string(position[10-nbessais-1]) + "\n")
+					affichemot(motcacher, lettreascii, ascii)
 					continue
 				}
-				fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-				fmt.Print(string(position[10-nbessais-1]) + "\n")
-				affichemot(motcacher, lettreascii, ascii)
-			} else {
-				if nbessais != 10 {
-					fmt.Print(string(position[10-nbessais-1]) + "\n")
-				}
-				fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
-				affichemot(motcacher, lettreascii, ascii)
 			}
 		}
+		if InTab(lutil, l) {
+			fmt.Print("Lettre déjà utiliser réessayer\n")
+			continue
+		}
+		lutil = append(lutil, l)
+		for i := 0; i < len(mot); i++ {
+			if string(mot[i]) == l && string(motcacher[i]) == "_" {
+				motcacher[i] = ToUpper(l)
+				danslemot++
+			}
+		}
+		if !InTab(motcacher, "_") {
+			continue
+		} else if danslemot == 0 {
+			nbessais--
+		}
 		if nbessais == 0 {
-			fmt.Print(string(position[9]))
-			fmt.Print("Perdu !! Le mot était\n")
-			affichemot(motcacher, lettreascii, ascii)
+			continue
 		} else {
-			fmt.Print("bravo vous avez trouvez le mot cacher\n")
+			if nbessais != 10 {
+				fmt.Print(string(position[10-nbessais-1]) + "\n")
+			}
+			fmt.Printf("Il te reste %d essais pour trouver le bon mot\n", nbessais)
 			affichemot(motcacher, lettreascii, ascii)
 		}
+	}
+	if nbessais == 0 {
+		fmt.Print(string(position[9]))
+		fmt.Print("Perdu !! Le mot était\n")
+		for i := 0; i < len(mot); i++ {
+			motcacher[i] = ToUpper(string(mot[i]))
+		}
+		affichemot(motcacher, lettreascii, ascii)
+	} else {
+		fmt.Print("bravo vous avez trouvez le mot cacher\n")
+		for i := 0; i < len(mot); i++ {
+			motcacher[i] = ToUpper(string(mot[i]))
+		}
+		affichemot(motcacher, lettreascii, ascii)
 	}
 }
 
